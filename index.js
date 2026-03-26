@@ -4,13 +4,22 @@ const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.MessageContent // 추가
+    GatewayIntentBits.MessageContent
   ]
 });
 
-// ✅ 올바른 이벤트
+// ✅ 로그인 확인
 client.once('ready', () => {
   console.log('봇 실행됨');
+});
+
+// ✅ 디버그 로그
+client.on('threadCreate', (thread) => {
+  console.log('🔥 threadCreate 발생:', thread.id);
+});
+
+client.on('messageCreate', (msg) => {
+  console.log('🔥 messageCreate 발생');
 });
 
 const forumIds = [
@@ -27,14 +36,12 @@ const sentThreads = new Set();
 
 async function sendAlert(thread) {
   try {
-    // 캐시 보정
     if (!thread.parent) {
       await thread.fetch();
     }
 
     if (!thread.parent || !forumIds.includes(thread.parent.id)) return;
 
-    // 중복 방지
     if (sentThreads.has(thread.id)) return;
     sentThreads.add(thread.id);
 
@@ -46,23 +53,22 @@ async function sendAlert(thread) {
       `<@&1010225986748567684> 새로운 작품이 등록되었어요✨\n${link}`
     );
 
+    console.log('✅ 알림 전송 완료');
+
   } catch (err) {
-    console.log('에러 발생:', err);
+    console.log('❌ 에러 발생:', err);
   }
 }
 
-// 포럼 글 생성 감지
+// 실제 이벤트 처리
 client.on('threadCreate', async (thread) => {
-  console.log('threadCreate 감지');
   await sendAlert(thread);
 });
 
-// 백업 (첫 메시지 기준)
 client.on('messageCreate', async (message) => {
   if (message.author.bot) return;
   if (!message.channel.isThread()) return;
 
-  console.log('messageCreate 감지');
   await sendAlert(message.channel);
 });
 
