@@ -1,3 +1,4 @@
+console.log("start");
 const { Client } = require('discord.js');
 
 // 🔥 서버 먼저
