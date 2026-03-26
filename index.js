@@ -8,18 +8,9 @@ const client = new Client({
   ]
 });
 
-// ✅ 로그인 확인
+// ✅ 수정: ready 이벤트
 client.once('ready', () => {
   console.log('봇 실행됨');
-});
-
-// ✅ 디버그 로그
-client.on('threadCreate', (thread) => {
-  console.log('🔥 threadCreate 발생:', thread.id);
-});
-
-client.on('messageCreate', (msg) => {
-  console.log('🔥 messageCreate 발생');
 });
 
 const forumIds = [
@@ -60,8 +51,9 @@ async function sendAlert(thread) {
   }
 }
 
-// 실제 이벤트 처리
+// 이벤트
 client.on('threadCreate', async (thread) => {
+  console.log('🔥 threadCreate 감지');
   await sendAlert(thread);
 });
 
@@ -69,6 +61,7 @@ client.on('messageCreate', async (message) => {
   if (message.author.bot) return;
   if (!message.channel.isThread()) return;
 
+  console.log('🔥 messageCreate 감지');
   await sendAlert(message.channel);
 });
 
