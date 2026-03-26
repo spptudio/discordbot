@@ -67,3 +67,8 @@ client.on('messageCreate', async (message) => {
 });
 
 client.login(process.env.TOKEN);
+
+require('http').createServer((req, res) => {
+  res.writeHead(200);
+  res.end('Bot is alive');
+}).listen(3000);
