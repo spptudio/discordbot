@@ -1,5 +1,10 @@
 const { Client, GatewayIntentBits } = require('discord.js');
 
+// 🔥 HTTP 서버 먼저 실행 (핵심)
+require('http').createServer((req, res) => {
+  res.end('OK');
+}).listen(process.env.PORT || 3000);
+
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
@@ -8,14 +13,13 @@ const client = new Client({
   ]
 });
 
-// 로그인 완료
+// 로그인 확인
 client.once('ready', () => {
   console.log('봇 실행됨');
 });
 
-// 에러 로그
+// 에러 확인
 client.on('error', console.error);
-client.on('warn', console.warn);
 
 const forumIds = [
   '1485230539290972231',
@@ -41,18 +45,13 @@ async function sendAlert(thread) {
 
     const link = `https://discord.com/channels/${thread.guild.id}/${thread.id}`;
 
-    await targetChannel.send(
-      `<@&1010225986748567684> 새로운 작품이 등록되었어요✨\n${link}`
-    );
-
-    console.log('알림 전송 완료');
+    await targetChannel.send(`<@&1010225986748567684>\n${link}`);
 
   } catch (err) {
     console.log('에러:', err);
   }
 }
 
-// 이벤트
 client.on('threadCreate', async (thread) => {
   console.log('threadCreate 감지');
   await sendAlert(thread);
@@ -66,5 +65,5 @@ client.on('messageCreate', async (message) => {
   await sendAlert(message.channel);
 });
 
-// 로그인
+// 🔥 로그인 마지막
 client.login(process.env.TOKEN);
