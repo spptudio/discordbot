@@ -1,5 +1,3 @@
-console.log("ENV TOKEN:", process.env.TOKEN);
-
 const { Client, GatewayIntentBits } = require('discord.js');
 
 const client = new Client({
@@ -10,7 +8,7 @@ const client = new Client({
   ]
 });
 
-// ✅ 수정: ready 이벤트
+// 로그인 완료 확인
 client.once('ready', () => {
   console.log('봇 실행됨');
 });
@@ -70,10 +68,8 @@ client.on('messageCreate', async (message) => {
 // 로그인
 client.login(process.env.TOKEN);
 
-// Render용 서버
+// Render용 HTTP 서버
 require('http').createServer((req, res) => {
   res.writeHead(200);
   res.end('Bot is alive');
 }).listen(process.env.PORT || 3000);
-
-console.log("TOKEN:", process.env.TOKEN);
