@@ -3,12 +3,13 @@ const { Client, GatewayIntentBits } = require('discord.js');
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildMessages
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent // 추가
   ]
 });
 
-// ⭐ 여기 수정됨
-client.once('clientReady', () => {
+// ✅ 올바른 이벤트
+client.once('ready', () => {
   console.log('봇 실행됨');
 });
 
@@ -26,14 +27,14 @@ const sentThreads = new Set();
 
 async function sendAlert(thread) {
   try {
-    // ⭐ 캐시 문제 방어
+    // 캐시 보정
     if (!thread.parent) {
       await thread.fetch();
     }
 
     if (!thread.parent || !forumIds.includes(thread.parent.id)) return;
 
-    // ⭐ 중복 방지
+    // 중복 방지
     if (sentThreads.has(thread.id)) return;
     sentThreads.add(thread.id);
 
@@ -50,25 +51,26 @@ async function sendAlert(thread) {
   }
 }
 
-// ⭐ threadCreate (메인)
+// 포럼 글 생성 감지
 client.on('threadCreate', async (thread) => {
   console.log('threadCreate 감지');
   await sendAlert(thread);
 });
 
-// ⭐ messageCreate (백업)
+// 백업 (첫 메시지 기준)
 client.on('messageCreate', async (message) => {
   if (message.author.bot) return;
   if (!message.channel.isThread()) return;
 
   console.log('messageCreate 감지');
-
   await sendAlert(message.channel);
 });
 
+// 로그인
 client.login(process.env.TOKEN);
 
+// Render용 서버
 require('http').createServer((req, res) => {
   res.writeHead(200);
   res.end('Bot is alive');
-}).listen(3000);
+}).listen(process.env.PORT || 3000);
