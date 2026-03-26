@@ -1,6 +1,6 @@
 const { Client, GatewayIntentBits } = require('discord.js');
 
-// 🔥 먼저 HTTP 서버
+// 🔥 HTTP 서버 먼저 (Render용)
 require('http').createServer((req, res) => {
   res.writeHead(200);
   res.end('Bot is alive');
@@ -14,9 +14,14 @@ const client = new Client({
   ]
 });
 
+// ✅ 상태 로그
 client.once('ready', () => {
   console.log('봇 실행됨');
 });
+
+// 🔥 에러 강제 출력 (핵심)
+client.on('error', console.error);
+client.on('warn', console.warn);
 
 const forumIds = [
   '1485230539290972231',
@@ -46,12 +51,16 @@ async function sendAlert(thread) {
       `<@&1010225986748567684> 새로운 작품이 등록되었어요✨\n${link}`
     );
 
+    console.log('✅ 알림 전송 완료');
+
   } catch (err) {
-    console.log('에러:', err);
+    console.log('❌ 에러 발생:', err);
   }
 }
 
+// 이벤트
 client.on('threadCreate', async (thread) => {
+  console.log('🔥 threadCreate 감지');
   await sendAlert(thread);
 });
 
@@ -59,8 +68,13 @@ client.on('messageCreate', async (message) => {
   if (message.author.bot) return;
   if (!message.channel.isThread()) return;
 
+  console.log('🔥 messageCreate 감지');
   await sendAlert(message.channel);
 });
 
-// 🔥 마지막에 로그인
-client.login(process.env.TOKEN);
+// 🔥 로그인 디버그 (핵심)
+console.log("로그인 시도");
+
+client.login(process.env.TOKEN)
+  .then(() => console.log("로그인 성공"))
+  .catch(err => console.error("로그인 실패:", err));
