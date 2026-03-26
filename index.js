@@ -1,3 +1,5 @@
+console.log("ENV TOKEN:", process.env.TOKEN);
+
 const { Client, GatewayIntentBits } = require('discord.js');
 
 const client = new Client({
