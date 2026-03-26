@@ -73,3 +73,5 @@ require('http').createServer((req, res) => {
   res.writeHead(200);
   res.end('Bot is alive');
 }).listen(process.env.PORT || 3000);
+
+console.log("TOKEN:", process.env.TOKEN);
