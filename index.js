@@ -22,6 +22,7 @@ const forumIds = [
   '1245821548682674268'
 ];
 
+// 🔥 중복 방지용
 const sentThreads = new Set();
 
 async function sendAlert(thread) {
@@ -29,6 +30,7 @@ async function sendAlert(thread) {
     if (!thread.parent) await thread.fetch();
     if (!thread.parent || !forumIds.includes(thread.parent.id)) return;
 
+    // ✅ 중복 방지
     if (sentThreads.has(thread.id)) return;
     sentThreads.add(thread.id);
 
@@ -36,22 +38,26 @@ async function sendAlert(thread) {
 
     const link = `https://discord.com/channels/${thread.guild.id}/${thread.id}`;
 
-    await targetChannel.send(`<@&1010225986748567684>\n${link}`);
+    // 🔥 글 내용 가져오기 (첫 메시지)
+    let content = '';
+    try {
+      const starterMessage = await thread.fetchStarterMessage();
+      content = starterMessage?.content || '';
+    } catch {}
+
+    await targetChannel.send(
+      `<@&1010225986748567684>\n${link}\n\n${content}`
+    );
 
   } catch (err) {
     console.log('에러:', err);
   }
 }
 
+// ✅ threadCreate만 사용 (중복 원인 제거)
 client.on('threadCreate', async (thread) => {
   await sendAlert(thread);
 });
 
-client.on('messageCreate', async (message) => {
-  if (message.author.bot) return;
-  if (!message.channel.isThread()) return;
-
-  await sendAlert(message.channel);
-});
-
+// ❌ messageCreate 제거 (중복 원인)
 client.login(process.env.TOKEN);
