@@ -46,7 +46,7 @@ async function sendAlert(thread) {
     } catch {}
 
     await targetChannel.send(
-      `<@&1010225986748567684>\n${link}\n\n${content}`
+      `<@&1010225986748567684>\n${link}\n${content}`
     );
 
   } catch (err) {
