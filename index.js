@@ -26,7 +26,7 @@ const forumIds = [
 const sentThreads = new Set();
 
 
-// 🔁 starter message 안전하게 가져오기 (재시도)
+// 🔁 starter message 재시도
 async function getStarterMessage(thread, retries = 3) {
   for (let i = 0; i < retries; i++) {
     try {
@@ -40,7 +40,7 @@ async function getStarterMessage(thread, retries = 3) {
 }
 
 
-// 📩 알림 보내기
+// 📩 알림 전송
 async function sendAlert(thread) {
   try {
     if (!thread.parent) await thread.fetch();
@@ -57,12 +57,18 @@ async function sendAlert(thread) {
 
     const link = `https://discord.com/channels/${thread.guild.id}/${thread.id}`;
 
-    // 🔥 starter message 가져오기 (재시도 포함)
+    // 🔥 starter message 가져오기
     const starterMessage = await getStarterMessage(thread);
     const content = starterMessage?.content || '(내용 없음)';
 
     await targetChannel.send(
-      `<@&1010225986748567684>\n${link}\n${content}`
+`✨ 새로운 작품이 등록되었어요 ✨
+
+<@&1010225986748567684>
+
+🔗 ${link}
+
+📝 ${content}`
     );
 
   } catch (err) {
@@ -71,11 +77,11 @@ async function sendAlert(thread) {
 }
 
 
-// 🚀 스레드 생성 감지 (딜레이 추가)
+// 🚀 생성 이벤트 (딜레이)
 client.on('threadCreate', async (thread) => {
   setTimeout(async () => {
     await sendAlert(thread);
-  }, 1500); // 1.5초 딜레이
+  }, 1500);
 });
 
 
