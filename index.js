@@ -46,10 +46,8 @@ async function sendAlert(thread) {
     if (!thread.parent) await thread.fetch();
     if (!thread.parent || !forumIds.includes(thread.parent.id)) return;
 
-    // ✅ 포럼 스레드만
     if (thread.type !== ChannelType.PublicThread) return;
 
-    // ✅ 중복 방지
     if (sentThreads.has(thread.id)) return;
     sentThreads.add(thread.id);
 
@@ -57,17 +55,13 @@ async function sendAlert(thread) {
 
     const link = `https://discord.com/channels/${thread.guild.id}/${thread.id}`;
 
-    // 🔥 starter message 가져오기
     const starterMessage = await getStarterMessage(thread);
     const content = starterMessage?.content || '(내용 없음)';
 
     await targetChannel.send(
-`✨ 새로운 작품이 등록되었어요 ✨
-
+      `✨ 새로운 작품이 등록되었어요 ✨
 <@&1010225986748567684>
-
 🔗 ${link}
-
 📝 ${content}`
     );
 
