@@ -25,7 +25,6 @@ const forumIds = [
 // 🔥 중복 방지
 const sentThreads = new Set();
 
-
 // 🔁 starter message 재시도
 async function getStarterMessage(thread, retries = 3) {
   for (let i = 0; i < retries; i++) {
@@ -38,7 +37,6 @@ async function getStarterMessage(thread, retries = 3) {
   }
   return null;
 }
-
 
 // 📩 알림 전송
 async function sendAlert(thread) {
@@ -59,7 +57,7 @@ async function sendAlert(thread) {
     const content = starterMessage?.content || '(내용 없음)';
 
     await targetChannel.send(
-      `✨ 새로운 작품이 등록되었어요 ✨
+`✨ 새로운 작품이 등록되었어요 ✨
 <@&1010225986748567684>
 🔗 ${link}
 📝 ${content}`
@@ -70,7 +68,6 @@ async function sendAlert(thread) {
   }
 }
 
-
 // 🚀 생성 이벤트 (딜레이)
 client.on('threadCreate', async (thread) => {
   setTimeout(async () => {
@@ -78,18 +75,10 @@ client.on('threadCreate', async (thread) => {
   }, 1500);
 });
 
-
+// 🔑 로그인
 client.login(process.env.TOKEN);
 
-const express = require("express");
-const app = express();
-
-app.get("/", (req, res) => res.send("alive"));
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT);
-
-
+// 🌐 Render용 웹서버 (필수)
 const express = require("express");
 const app = express();
 
