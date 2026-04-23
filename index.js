@@ -22,7 +22,7 @@ const forumIds = [
   '1245821548682674268'
 ];
 
-// 🔥 중복 방지
+// 🔥 중복 방지 (핵심)
 const sentThreads = new Set();
 
 // 🔁 starter message 재시도
@@ -38,16 +38,13 @@ async function getStarterMessage(thread, retries = 3) {
   return null;
 }
 
-// 📩 알림 전송
+// 📩 알림 전송 (중복 체크 제거됨)
 async function sendAlert(thread) {
   try {
     if (!thread.parent) await thread.fetch();
     if (!thread.parent || !forumIds.includes(thread.parent.id)) return;
 
     if (thread.type !== ChannelType.PublicThread) return;
-
-    if (sentThreads.has(thread.id)) return;
-    sentThreads.add(thread.id);
 
     const targetChannel = await client.channels.fetch('1486620867512500254');
 
@@ -68,17 +65,22 @@ async function sendAlert(thread) {
   }
 }
 
-// 🚀 생성 이벤트 (딜레이)
+// 🚀 생성 이벤트 (이중 체크 구조)
 client.on('threadCreate', async (thread) => {
+  if (sentThreads.has(thread.id)) return; // 1차 차단
+
   setTimeout(async () => {
+    if (sentThreads.has(thread.id)) return; // 2차 차단
+
     await sendAlert(thread);
+    sentThreads.add(thread.id); // 전송 후 기록
   }, 1500);
 });
 
 // 🔑 로그인
 client.login(process.env.TOKEN);
 
-// 🌐 Render용 웹서버 (필수)
+// 🌐 Render용 웹서버
 const express = require("express");
 const app = express();
 
