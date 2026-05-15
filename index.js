@@ -77,6 +77,13 @@ client.on('threadCreate', async (thread) => {
   }, 1500);
 });
 
+// 테스트
+client.on('messageCreate', (message) => {
+  if (message.content === '!ping') {
+    message.reply('pong');
+  }
+});
+
 // 🔑 로그인
 client.login(process.env.TOKEN);
 
