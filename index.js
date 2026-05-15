@@ -1,3 +1,6 @@
+process.on('unhandledRejection', console.error);
+process.on('uncaughtException', console.error);
+
 const { Client, GatewayIntentBits, ChannelType } = require('discord.js');
 
 const client = new Client({
@@ -8,8 +11,8 @@ const client = new Client({
   ]
 });
 
-client.once('clientReady', () => {
-  console.log('봇 실행됨');
+client.once('ready', () => {
+  console.log('봇 로그인 성공');
 });
 
 const forumIds = [
@@ -22,23 +25,23 @@ const forumIds = [
   '1245821548682674268'
 ];
 
-// 🔥 중복 방지 (핵심)
 const sentThreads = new Set();
 
-// 🔁 starter message 재시도
 async function getStarterMessage(thread, retries = 3) {
   for (let i = 0; i < retries; i++) {
     try {
       const msg = await thread.fetchStarterMessage();
       if (msg) return msg;
-    } catch {}
+    } catch (err) {
+      console.log(err);
+    }
 
     await new Promise(res => setTimeout(res, 1000));
   }
+
   return null;
 }
 
-// 📩 알림 전송 (중복 체크 제거됨)
 async function sendAlert(thread) {
   try {
     if (!thread.parent) await thread.fetch();
@@ -65,29 +68,26 @@ async function sendAlert(thread) {
   }
 }
 
-// 🚀 생성 이벤트 (이중 체크 구조)
 client.on('threadCreate', async (thread) => {
-  if (sentThreads.has(thread.id)) return; // 1차 차단
+  if (sentThreads.has(thread.id)) return;
 
   setTimeout(async () => {
-    if (sentThreads.has(thread.id)) return; // 2차 차단
+    if (sentThreads.has(thread.id)) return;
 
     await sendAlert(thread);
-    sentThreads.add(thread.id); // 전송 후 기록
+    sentThreads.add(thread.id);
   }, 1500);
 });
 
-// 테스트
+// 테스트용
 client.on('messageCreate', (message) => {
   if (message.content === '!ping') {
     message.reply('pong');
   }
 });
 
-// 🔑 로그인
 client.login(process.env.TOKEN);
 
-// 🌐 Render용 웹서버
 const express = require("express");
 const app = express();
 
