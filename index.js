@@ -11,7 +11,7 @@ const client = new Client({
   ]
 });
 
-client.once('ready', () => {
+client.once('clientReady', () => {
   console.log('봇 로그인 성공');
 });
 
@@ -45,6 +45,7 @@ async function getStarterMessage(thread, retries = 3) {
 async function sendAlert(thread) {
   try {
     if (!thread.parent) await thread.fetch();
+
     if (!thread.parent || !forumIds.includes(thread.parent.id)) return;
 
     if (thread.type !== ChannelType.PublicThread) return;
@@ -54,6 +55,7 @@ async function sendAlert(thread) {
     const link = `https://discord.com/channels/${thread.guild.id}/${thread.id}`;
 
     const starterMessage = await getStarterMessage(thread);
+
     const content = starterMessage?.content || '(내용 없음)';
 
     await targetChannel.send(
@@ -75,23 +77,32 @@ client.on('threadCreate', async (thread) => {
     if (sentThreads.has(thread.id)) return;
 
     await sendAlert(thread);
+
     sentThreads.add(thread.id);
   }, 1500);
 });
 
-// 테스트용
+// 테스트용 ping
 client.on('messageCreate', (message) => {
   if (message.content === '!ping') {
     message.reply('pong');
   }
 });
 
+// 로그인
 client.login(process.env.TOKEN);
 
-const express = require("express");
+// Render 웹서버
+const express = require('express');
+
 const app = express();
 
-app.get("/", (req, res) => res.send("alive"));
+app.get('/', (req, res) => {
+  res.send('alive');
+});
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log("web server running"));
+
+app.listen(PORT, () => {
+  console.log('web server running');
+});
