@@ -84,7 +84,9 @@ client.on('threadCreate', async (thread) => {
 
 // 테스트용 ping
 client.on('messageCreate', (message) => {
-  console.log(message.content);
+  if (message.content === '!ping') {
+    message.reply('pong');
+  }
 });
 
 // 로그인
